@@ -40,7 +40,7 @@ namespace VillaDoMarApi.Controllers
         public async Task<ActionResult<Order>> CreateOrder(OrderDto order)
         {
             var totalValue = order.Products.Sum(x => x.Value);
-            Order newOrder = new() { Products = order.Products, TotalValue = totalValue};
+            Order newOrder = new() { Products = order.Products, TotalValue = totalValue, Client = order.Client};
             _context.Orders.Add(newOrder);
             await _context.SaveChangesAsync();
             return Ok(order);
@@ -48,27 +48,28 @@ namespace VillaDoMarApi.Controllers
 
         [HttpPut]
         [Route("EditOrder")]
-        public async Task<ActionResult<Product>> EditOrder(ProductIdDto product)
+        public async Task<ActionResult<Order>> EditOrder(OrderIdDto order)
         {
-            Product newProduct = new() { Id = product.Id, Name = product.Name, Description = product.Description };
-            var oldProduct = _context.Products.SingleOrDefault(p => p.Id == product.Id);
-            if (oldProduct is null)
-                return NotFound("Produto não encontrado");
-            _context.Entry(oldProduct).CurrentValues.SetValues(newProduct);
+            var totalValue = order.Products.Sum(x => x.Value);
+            Order newOrder = new() { Id = order.Id, TotalValue = totalValue, Client = order.Client };
+            var oldOrder = _context.Products.SingleOrDefault(p => p.Id == order.Id);
+            if (oldOrder is null)
+                return NotFound("Pedido não encontrado");
+            _context.Entry(oldOrder).CurrentValues.SetValues(newOrder);
             await _context.SaveChangesAsync();
-            return Ok(product);
+            return Ok(order);
         }
 
         [HttpDelete]
-        [Route("DeleteProduct")]
-        public async Task<ActionResult> DeleteProducts(int id)
+        [Route("DeleteOrder")]
+        public async Task<ActionResult> DeleteOrder(int id)
         {
-            var product = _context.Products.SingleOrDefault(p => p.Id == id);
-            if (product is null)
-                return NotFound("Produto não encontrado");
-            _context.Products.Remove(product);
+            var order = _context.Orders.SingleOrDefault(p => p.Id == id);
+            if (order is null)
+                return NotFound("Pedido não encontrado");
+            _context.Orders.Remove(order);
             await _context.SaveChangesAsync();
-            return Ok("Produto deletado com sucesso!");
+            return Ok("Pedido deletado com sucesso!");
         }
     }
 }
