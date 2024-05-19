@@ -6,6 +6,6 @@
         public string Name { get; set; }
         public bool Active { get; set; }
         public DateTime createdDate { get; set; }
-        public Adress adress { get; set; }
+        public Address adress { get; set; }
     }
 }
