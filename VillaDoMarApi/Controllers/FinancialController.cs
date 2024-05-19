@@ -12,26 +12,26 @@ namespace VillaDoMarApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CaixasController : ControllerBase
+    public class FinancialController : ControllerBase
     {
         private readonly DataContext _context;
 
-        public CaixasController(DataContext context)
+        public FinancialController(DataContext context)
         {
             _context = context;
         }
 
         [HttpGet]
-        [Route("ResumoCaixa")]
+        [Route("FinancialSummary")]
         public async Task<ActionResult<object>> ResumoCaixa()
         {
-            var totalEntradas = await _context.Caixas
-                .Where(c => c.TipoMovimento == "Entrada")
-                .SumAsync(c => c.Valor);
+            var totalEntradas = await _context.Financials
+                .Where(c => c.MoveType == "Entrada")
+                .SumAsync(c => c.Value);
 
-            var totalSaidas = await _context.Caixas
-                .Where(c => c.TipoMovimento == "Saida")
-                .SumAsync(c => c.Valor);
+            var totalSaidas = await _context.Financials
+                .Where(c => c.MoveType == "Saida")
+                .SumAsync(c => c.Value);
 
             var Saldo = totalEntradas - totalSaidas;
 
@@ -44,62 +44,58 @@ namespace VillaDoMarApi.Controllers
         }
 
         [HttpGet]
-        [Route("GetCaixas")]
-        public async Task<ActionResult<List<Caixa>>> GetCaixas()
+        [Route("GetFinancials")]
+        public async Task<ActionResult<List<Financial>>> GetCaixas()
         {
-            var caixas = await _context.Caixas.ToListAsync();
+            var caixas = await _context.Financials.ToListAsync();
             return Ok(caixas);
         }
 
         [HttpGet]
-        [Route("GetCaixa")]
-        public async Task<ActionResult<Caixa>> GetCaixa(int id)
+        [Route("GetFinancial")]
+        public async Task<ActionResult<Financial>> GetCaixa(int id)
         {
-            var caixa = await _context.Caixas.SingleOrDefaultAsync(c => c.Id == id);
+            var caixa = await _context.Financials.SingleOrDefaultAsync(c => c.Id == id);
             if (caixa is null)
                 return NotFound("Transação não encontrada");
             return Ok(caixa);
         }
 
         [HttpPost]
-        [Route("InsertCaixa")]
-        public async Task<ActionResult<Caixa>> InsertCaixa(CaixaDto caixa)
+        [Route("InsertFinancial")]
+        public async Task<ActionResult<Financial>> InsertCaixa(CaixaDto caixa)
         {
             if (!await CaixaEstaAberto())
                 return BadRequest("O caixa está fechado, não é possível adicionar transações");
 
-            Caixa newCaixa = new()
+            Financial newCaixa = new()
             {
-                Name = caixa.Name,
-                Cliente = caixa.Cliente,
-                Data = caixa.Data,
-                Valor = caixa.Valor,
-                TipoPagamento = caixa.TipoPagamento,
-                TipoMovimento = caixa.TipoMovimento
+                Date = caixa.Date,
+                Value = caixa.Value,
+                PaymentType = caixa.PaymentType,
+                MoveType = caixa.MoveType
             };
-            _context.Caixas.Add(newCaixa);
+            _context.Financials.Add(newCaixa);
             await _context.SaveChangesAsync();
             return Ok(caixa);
         }
 
         [HttpPut]
-        [Route("EditCaixa")]
-        public async Task<ActionResult<Caixa>> EditCaixa(CaixaIdDto caixa)
+        [Route("EditFinancial")]
+        public async Task<ActionResult<Financial>> EditCaixa(CaixaIdDto caixa)
         {
             if (!await CaixaEstaAberto())
                 return BadRequest("O caixa está fechado, não é possível editar transações");
 
-            Caixa newCaixa = new()
+            Financial newCaixa = new()
             {
                 Id = caixa.Id,
-                Name = caixa.Name,
-                Cliente = caixa.Cliente,
-                Data = caixa.Data,
-                Valor = caixa.Valor,
-                TipoPagamento = caixa.TipoPagamento,
-                TipoMovimento = caixa.TipoMovimento
+                Date = caixa.Date,
+                Value = caixa.Value,
+                PaymentType = caixa.PaymentType,
+                MoveType = caixa.MoveType
             };
-            var oldCaixa = _context.Caixas.SingleOrDefault(c => c.Id == caixa.Id);
+            var oldCaixa = _context.Financials.SingleOrDefault(c => c.Id == caixa.Id);
             if (oldCaixa is null)
                 return NotFound("Transação não encontrada");
             _context.Entry(oldCaixa).CurrentValues.SetValues(newCaixa);
@@ -108,35 +104,35 @@ namespace VillaDoMarApi.Controllers
         }
 
         [HttpDelete]
-        [Route("DeleteCaixa")]
-        public async Task<ActionResult<Caixa>> DeleteCaixa(int id)
+        [Route("DeleteFinancial")]
+        public async Task<ActionResult<Financial>> DeleteCaixa(int id)
         {
             if (!await CaixaEstaAberto())
                 return BadRequest("O caixa está fechado, não é possível excluir transações");
 
-            var caixa = _context.Caixas.SingleOrDefault(c => c.Id == id);
+            var caixa = _context.Financials.SingleOrDefault(c => c.Id == id);
             if (caixa is null)
                 return NotFound("Transação não encontrada");
-            _context.Caixas.Remove(caixa);
+            _context.Financials.Remove(caixa);
             await _context.SaveChangesAsync();
             return Ok("Transação deletada com sucesso!");
         }
 
         [HttpGet]
-        [Route("StatusCaixa")]
+        [Route("FinancialStatus")]
         public async Task<ActionResult<StatusCaixaDto>> StatusCaixa()
         {
 
-            var statusCaixa = await _context.StatusCaixas.OrderByDescending(c => c.Id).FirstOrDefaultAsync();
+            var statusCaixa = await _context.FinancialStatus.OrderByDescending(c => c.Id).FirstOrDefaultAsync();
             if (statusCaixa == null)
                 return NotFound("Nenhum caixa encontrado");
 
             var statusCaixaDto = new StatusCaixaDto
             {
                 Id = statusCaixa.Id,
-                Aberto = statusCaixa.Aberto,
-                DataHoraAbertura = statusCaixa.DataHoraAbertura,
-                DataHoraFechamento = statusCaixa.DataHoraFechamento
+                Status = statusCaixa.Status,
+                OpenDate = statusCaixa.OpenDate,
+                CloseDate = statusCaixa.CloseDate
             };
 
             return Ok(statusCaixaDto);
@@ -144,34 +140,34 @@ namespace VillaDoMarApi.Controllers
 
 
         [HttpPost]
-        [Route("AbrirCaixa")]
+        [Route("OpenFinancial")]
         public async Task<ActionResult> AbrirCaixa()
         {
-            var caixaAberto = await _context.StatusCaixas.AnyAsync(c => c.Aberto);
+            var caixaAberto = await _context.FinancialStatus.AnyAsync(c => c.Status);
             if (caixaAberto)
                 return BadRequest("Já existe um caixa aberto");
 
-            var statusCaixa = new StatusCaixa
+            var statusCaixa = new FinancialStatus
             {
-                Aberto = true,
-                DataHoraAbertura = DateTime.Now,
-                DataHoraFechamento = null
+                Status = true,
+                OpenDate = DateTime.Now,
+                CloseDate = null
             };
-            _context.StatusCaixas.Add(statusCaixa);
+            _context.FinancialStatus.Add(statusCaixa);
             await _context.SaveChangesAsync();
             return Ok("Caixa aberto com sucesso");
         }
 
         [HttpPost]
-        [Route("FecharCaixa")]
+        [Route("CloseFinancial")]
         public async Task<ActionResult> FecharCaixa()
         {
-            var caixaAberto = await _context.StatusCaixas.SingleOrDefaultAsync(c => c.Aberto);
+            var caixaAberto = await _context.FinancialStatus.SingleOrDefaultAsync(c => c.Status);
             if (caixaAberto == null)
                 return BadRequest("Não existe um caixa aberto");
 
-            caixaAberto.Aberto = false;
-            caixaAberto.DataHoraFechamento = DateTime.Now;
+            caixaAberto.Status = false;
+            caixaAberto.CloseDate = DateTime.Now;
             await _context.SaveChangesAsync();
             return Ok("Caixa fechado com sucesso");
         }
@@ -180,13 +176,13 @@ namespace VillaDoMarApi.Controllers
         [Route("HistóricoCaixas")]
         public async Task<ActionResult<List<StatusCaixaDto>>> HistóricoCaixas()
         {
-            var statusCaixas = await _context.StatusCaixas.ToListAsync();
+            var statusCaixas = await _context.FinancialStatus.ToListAsync();
             var statusCaixasDto = statusCaixas.Select(statusCaixa => new StatusCaixaDto
             {
                 Id = statusCaixa.Id,
-                Aberto = statusCaixa.Aberto,
-                DataHoraAbertura = statusCaixa.DataHoraAbertura,
-                DataHoraFechamento = statusCaixa.DataHoraFechamento
+                Status = statusCaixa.Status,
+                OpenDate = statusCaixa.OpenDate,
+                CloseDate = statusCaixa.CloseDate
             }).ToList();
             return Ok(statusCaixasDto);
         }
@@ -194,8 +190,8 @@ namespace VillaDoMarApi.Controllers
 
         private async Task<bool> CaixaEstaAberto()
         {
-            var statusCaixa = await _context.StatusCaixas.SingleOrDefaultAsync();
-            return statusCaixa?.Aberto ?? false;
+            var statusCaixa = await _context.FinancialStatus.SingleOrDefaultAsync();
+            return statusCaixa?.Status ?? false;
         }
     }
 }

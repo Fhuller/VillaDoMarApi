@@ -2,12 +2,10 @@ namespace VillaDoMarApi.Dtos
 {
     public class CaixaDto
     {
-        public string Name { get; set; } = null!;
-        public string Cliente { get; set; } = null!;
-        public DateTime Data { get; set; }
-        public decimal Valor { get; set; }
-        public string TipoPagamento { get; set; } = null!;
-        public string TipoMovimento { get; set; } = null!;
+        public DateTime Date { get; set; }
+        public decimal Value { get; set; }
+        public string PaymentType { get; set; } = null!;
+        public string MoveType { get; set; } = null!;
     }
 
     public class CaixaIdDto : CaixaDto
