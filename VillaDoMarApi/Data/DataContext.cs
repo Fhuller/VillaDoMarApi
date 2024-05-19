@@ -14,6 +14,8 @@ namespace VillaDoMarApi.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<Storage> Storage { get; set; }
         public DbSet<TypeProduct> TypeProduct { get; set; }
+        public DbSet<Address> Addresses { get; set; }
+        public DbSet<Client> Clients { get; set; } 
         public DbSet<Financial> Financials { get; set; }
         public DbSet<FinancialStatus> FinancialStatus { get; set; }
         public DbSet<Order> Orders { get; set; }
