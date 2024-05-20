@@ -19,7 +19,7 @@ namespace VillaDoMarApi.Controllers
 
         [HttpGet]
         [Route("GetTypeProducts")]
-        public async Task<ActionResult<List<TypeProduct>>> GetT ypeProducts()
+        public async Task<ActionResult<List<TypeProduct>>> GetTypeProducts()
         {
             var typeProducts = await _context.TypeProduct.ToListAsync();
             return Ok(typeProducts);
