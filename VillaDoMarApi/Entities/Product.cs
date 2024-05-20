@@ -8,6 +8,6 @@
         public decimal Value { get; set; }
         public decimal Weight { get; set; }
         public int TypeProduct {  get; set; }
-        public SupplierProducts SupplierProductId { get; set; }
+        public SupplierProducts? SupplierProductId { get; set; }
     }
 }
