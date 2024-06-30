@@ -7,7 +7,7 @@
         public string Description { get; set; } = null!;
         public decimal Value { get; set; }
         public decimal Weight { get; set; }
-        public int TypeProduct {  get; set; }
-        public SupplierProducts? SupplierProductId { get; set; }
+        public int TypeProductId {  get; set; }
+        public int SupplierProductId { get; set; }
     }
 }

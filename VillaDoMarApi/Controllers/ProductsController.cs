@@ -33,10 +33,20 @@ namespace VillaDoMarApi.Controllers
             var productsWithTotalAmounts = await _context.Products
                 .Select(product => new
                 {
-                    Product = product,
+                    Product = new { 
+                        productId = product.Id,
+                        name = product.Name,
+                        description = product.Description,
+                        value = product.Value,
+                        weight = product.Weight,
+                        typeProductId = product.TypeProductId,
+                        typeProduct = _context.TypeProduct.FirstOrDefault(x => x.Id == product.TypeProductId).Name,
+                        supplierProductId = product.SupplierProductId,
+                        supplierProduct = _context.Suppliers.FirstOrDefault(x => x.Id == product.SupplierProductId),
+                    },
                     TotalAmount = _context.ProductMovements
                         .Where(pm => pm.ProductId == product.Id)
-                        .Sum(pm => pm.IsEntry ? pm.MovementAmount : -pm.MovementAmount)
+                        .Sum(pm => pm.IsEntry ? pm.MovementAmount : -pm.MovementAmount),
                 })
                 .ToListAsync();
 
@@ -89,7 +99,7 @@ namespace VillaDoMarApi.Controllers
                 Description = product.Description,
                 Value = product.Value,
                 Weight = product.Weight,
-                TypeProduct = product.TypeProductID,
+                TypeProductId = product.TypeProductID,
             };
             _context.Products.Add(newProduct);
             await _context.SaveChangesAsync();
@@ -106,11 +116,12 @@ namespace VillaDoMarApi.Controllers
                 Description = product.Description,
                 Value = product.Value,
                 Weight = product.Weight,
-                TypeProduct = product.TypeProductID,
+                TypeProductId = product.TypeProductID,
             };
             var oldProduct = _context.Products.SingleOrDefault(p => p.Id == product.Id);
             if(oldProduct is null)
                 return NotFound("Produto não encontrado");
+            newProduct.Id = oldProduct.Id;
             _context.Entry(oldProduct).CurrentValues.SetValues(newProduct);
             await _context.SaveChangesAsync();
             return Ok(product);
