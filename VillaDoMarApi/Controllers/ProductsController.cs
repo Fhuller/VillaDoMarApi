@@ -34,7 +34,7 @@ namespace VillaDoMarApi.Controllers
                 .Select(product => new
                 {
                     Product = new { 
-                        productId = product.Id,
+                        id = product.Id,
                         name = product.Name,
                         description = product.Description,
                         value = product.Value,
