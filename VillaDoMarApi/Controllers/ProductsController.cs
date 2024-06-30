@@ -53,6 +53,16 @@ namespace VillaDoMarApi.Controllers
             return Ok(product);
         }
 
+        [HttpGet]
+        [Route("GetProductHistory")]
+        public async Task<ActionResult<List<Product>>> GetProductHistory(int id)
+        {
+            var product = await _context.ProductMovements.Where(p => p.ProductId == id).ToListAsync();
+            if (product is null)
+                return NotFound("Produto não encontrado");
+            return Ok(product);
+        }
+
         [HttpPost]
         [Route("ProductMovement")]
         public async Task<ActionResult<Product>> ProductMovement(ProductMovementDto movement)
