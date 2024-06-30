@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Versioning;
 using VillaDoMarApi.Data;
 using VillaDoMarApi.Dtos;
 using VillaDoMarApi.Entities;
@@ -26,6 +27,23 @@ namespace VillaDoMarApi.Controllers
         }
 
         [HttpGet]
+        [Route("GetProductsWithAmount")]
+        public async Task<ActionResult<List<Product>>> GetProductsWithAmount()
+        {
+            var productsWithTotalAmounts = await _context.Products
+                .Select(product => new
+                {
+                    Product = product,
+                    TotalAmount = _context.ProductMovements
+                        .Where(pm => pm.ProductId == product.Id)
+                        .Sum(pm => pm.IsEntry ? pm.MovementAmount : -pm.MovementAmount)
+                })
+                .ToListAsync();
+
+            return Ok(productsWithTotalAmounts);
+        }
+
+        [HttpGet]
         [Route("GetProduct")]
         public async Task<ActionResult<List<Product>>> GetProduct(int id)
         {
@@ -33,6 +51,23 @@ namespace VillaDoMarApi.Controllers
             if (product is null)
                 return NotFound("Produto não encontrado");
             return Ok(product);
+        }
+
+        [HttpPost]
+        [Route("ProductMovement")]
+        public async Task<ActionResult<Product>> ProductMovement(ProductMovementDto movement)
+        {
+            ProductMovements newMovement = new()
+            {
+                ProductId = movement.ProductId,
+                MovementAmount = movement.Amount,
+                IsEntry = movement.IsEntry,
+                MovementDate = DateTime.Now,
+                Description = movement.Description ?? ""
+            };
+            _context.ProductMovements.Add(newMovement);
+            await _context.SaveChangesAsync();
+            return Ok(newMovement);
         }
 
         [HttpPost]
