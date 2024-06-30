@@ -39,7 +39,13 @@ namespace VillaDoMarApi.Controllers
         [Route("InsertProduct")]
         public async Task<ActionResult<Product>> InsertProducts(ProductDto product)
         {
-            Product newProduct = new() { Name = product.Name, Description = product.Description };
+            Product newProduct = new() {
+                Name = product.Name, 
+                Description = product.Description,
+                Value = product.Value,
+                Weight = product.Weight,
+                TypeProduct = product.TypeProductID,
+            };
             _context.Products.Add(newProduct);
             await _context.SaveChangesAsync();
             return Ok(product);
@@ -49,7 +55,14 @@ namespace VillaDoMarApi.Controllers
         [Route("EditProduct")]
         public async Task<ActionResult<Product>> EditProducts(ProductIdDto product)
         {
-            Product newProduct = new() { Id = product.Id, Name = product.Name, Description = product.Description };
+            Product newProduct = new()
+            {
+                Name = product.Name,
+                Description = product.Description,
+                Value = product.Value,
+                Weight = product.Weight,
+                TypeProduct = product.TypeProductID,
+            };
             var oldProduct = _context.Products.SingleOrDefault(p => p.Id == product.Id);
             if(oldProduct is null)
                 return NotFound("Produto não encontrado");
@@ -60,7 +73,7 @@ namespace VillaDoMarApi.Controllers
 
         [HttpDelete]
         [Route("DeleteProduct")]
-        public async Task<ActionResult> DeleteProducts(int id)
+        public async Task<ActionResult> DeleteProduct(int id)
         {
             var product = _context.Products.SingleOrDefault(p => p.Id == id);
             if (product is null)
