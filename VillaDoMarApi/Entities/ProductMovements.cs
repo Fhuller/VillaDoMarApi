@@ -1,7 +1,8 @@
-﻿namespace VillaDoMarApi.Dtos
+﻿namespace VillaDoMarApi.Entities
 {
-    public class StorageDto
+    public class ProductMovements
     {
+        public int Id { get; set; }
         public int ProductId { get; set; }
         public int MovementAmount { get; set; }
         public bool IsEntry { get; set; }

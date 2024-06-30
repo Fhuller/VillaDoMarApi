@@ -3,10 +3,10 @@
     public class Supplier
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public int CpfCnpj { get; set; }
         public bool Active { get; set; }
         public DateTime CreateDate { get; set; }
-        public Address Address { get; set; }
+        public Address Address { get; set; } = null!;
     }
 }

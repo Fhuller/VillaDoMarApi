@@ -173,8 +173,8 @@ namespace VillaDoMarApi.Controllers
         }
 
         [HttpGet]
-        [Route("HistóricoCaixas")]
-        public async Task<ActionResult<List<StatusCaixaDto>>> HistóricoCaixas()
+        [Route("History")]
+        public async Task<ActionResult<List<StatusCaixaDto>>> History()
         {
             var statusCaixas = await _context.FinancialStatus.ToListAsync();
             var statusCaixasDto = statusCaixas.Select(statusCaixa => new StatusCaixaDto
