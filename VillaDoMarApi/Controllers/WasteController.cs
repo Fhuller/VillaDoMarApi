@@ -9,7 +9,7 @@ namespace VillaDoMarApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class WasteController : Controller
+    public class WasteController : ControllerBase
     {
         private readonly DataContext _context;
 
@@ -24,7 +24,7 @@ namespace VillaDoMarApi.Controllers
         {
             var wastes = await _context.Wastes.ToListAsync();
             return Ok(wastes);
-        }
+        } 
 
         [HttpGet]
         [Route("GetWaste")]
@@ -40,7 +40,7 @@ namespace VillaDoMarApi.Controllers
         [Route("InsertWaste")]
         public async Task<ActionResult<Waste>> InsertWaste(WasteDto dto)
         {
-            Waste newWaste = new() { Name = dto.Name };
+            Waste newWaste = new() { Name = dto.Name, Weight = dto.Weight};
             _context.Wastes.Add(newWaste);
             await _context.SaveChangesAsync();
             return Ok(newWaste);
@@ -60,6 +60,7 @@ namespace VillaDoMarApi.Controllers
             return Ok(waste);
         }
 
+        
         [HttpDelete]
         [Route("DeletWaste")]
         public async Task<ActionResult> DeleteWaste(int id)
