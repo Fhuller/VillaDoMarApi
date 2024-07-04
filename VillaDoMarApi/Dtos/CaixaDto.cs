@@ -2,6 +2,7 @@ namespace VillaDoMarApi.Dtos
 {
     public class CaixaDto
     {
+        public string Name { get; set; }
         public DateTime Date { get; set; }
         public decimal Value { get; set; }
         public string PaymentType { get; set; } = null!;

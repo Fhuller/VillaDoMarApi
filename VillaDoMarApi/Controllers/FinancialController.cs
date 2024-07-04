@@ -57,7 +57,7 @@ namespace VillaDoMarApi.Controllers
         {
             var caixa = await _context.Financials.SingleOrDefaultAsync(c => c.Id == id);
             if (caixa is null)
-                return NotFound("Transação não encontrada");
+                return NotFound("Transaï¿½ï¿½o nï¿½o encontrada");
             return Ok(caixa);
         }
 
@@ -66,10 +66,11 @@ namespace VillaDoMarApi.Controllers
         public async Task<ActionResult<Financial>> InsertCaixa(CaixaDto caixa)
         {
             if (!await CaixaEstaAberto())
-                return BadRequest("O caixa está fechado, não é possível adicionar transações");
+                return BadRequest("O caixa estï¿½ fechado, nï¿½o ï¿½ possï¿½vel adicionar transaï¿½ï¿½es");
 
             Financial newCaixa = new()
             {
+                Name = caixa.Name,
                 Date = caixa.Date,
                 Value = caixa.Value,
                 PaymentType = caixa.PaymentType,
@@ -85,11 +86,12 @@ namespace VillaDoMarApi.Controllers
         public async Task<ActionResult<Financial>> EditCaixa(CaixaIdDto caixa)
         {
             if (!await CaixaEstaAberto())
-                return BadRequest("O caixa está fechado, não é possível editar transações");
+                return BadRequest("O caixa estï¿½ fechado, nï¿½o ï¿½ possï¿½vel editar transaï¿½ï¿½es");
 
             Financial newCaixa = new()
             {
                 Id = caixa.Id,
+                Name = caixa.Name,
                 Date = caixa.Date,
                 Value = caixa.Value,
                 PaymentType = caixa.PaymentType,
@@ -97,7 +99,7 @@ namespace VillaDoMarApi.Controllers
             };
             var oldCaixa = _context.Financials.SingleOrDefault(c => c.Id == caixa.Id);
             if (oldCaixa is null)
-                return NotFound("Transação não encontrada");
+                return NotFound("Transaï¿½ï¿½o nï¿½o encontrada");
             _context.Entry(oldCaixa).CurrentValues.SetValues(newCaixa);
             await _context.SaveChangesAsync();
             return Ok(caixa);
@@ -108,14 +110,14 @@ namespace VillaDoMarApi.Controllers
         public async Task<ActionResult<Financial>> DeleteCaixa(int id)
         {
             if (!await CaixaEstaAberto())
-                return BadRequest("O caixa está fechado, não é possível excluir transações");
+                return BadRequest("O caixa estï¿½ fechado, nï¿½o ï¿½ possï¿½vel excluir transaï¿½ï¿½es");
 
             var caixa = _context.Financials.SingleOrDefault(c => c.Id == id);
             if (caixa is null)
-                return NotFound("Transação não encontrada");
+                return NotFound("Transaï¿½ï¿½o nï¿½o encontrada");
             _context.Financials.Remove(caixa);
             await _context.SaveChangesAsync();
-            return Ok("Transação deletada com sucesso!");
+            return Ok("Transaï¿½ï¿½o deletada com sucesso!");
         }
 
         [HttpGet]
@@ -145,7 +147,7 @@ namespace VillaDoMarApi.Controllers
         {
             var caixaAberto = await _context.FinancialStatus.AnyAsync(c => c.Status);
             if (caixaAberto)
-                return BadRequest("Já existe um caixa aberto");
+                return BadRequest("Jï¿½ existe um caixa aberto");
 
             var statusCaixa = new FinancialStatus
             {
@@ -164,7 +166,7 @@ namespace VillaDoMarApi.Controllers
         {
             var caixaAberto = await _context.FinancialStatus.SingleOrDefaultAsync(c => c.Status);
             if (caixaAberto == null)
-                return BadRequest("Não existe um caixa aberto");
+                return BadRequest("Nï¿½o existe um caixa aberto");
 
             caixaAberto.Status = false;
             caixaAberto.CloseDate = DateTime.Now;
@@ -190,8 +192,16 @@ namespace VillaDoMarApi.Controllers
 
         private async Task<bool> CaixaEstaAberto()
         {
-            var statusCaixa = await _context.FinancialStatus.SingleOrDefaultAsync();
-            return statusCaixa?.Status ?? false;
+        var statusCaixa = await _context.FinancialStatus
+        .Where(c => c.Status)
+        .ToListAsync();
+
+    if (statusCaixa.Count > 1)
+    {
+        throw new InvalidOperationException("Mais de um caixa estÃ¡ aberto.");
+    }
+
+    return statusCaixa.Count == 1;
         }
     }
 }
